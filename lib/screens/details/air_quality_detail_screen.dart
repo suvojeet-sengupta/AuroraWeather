@@ -10,43 +10,17 @@ class AirQualityDetailScreen extends StatefulWidget {
   State<AirQualityDetailScreen> createState() => _AirQualityDetailScreenState();
 }
 
-class _AirQualityDetailScreenState extends State<AirQualityDetailScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _aqiAnimation;
+class _AirQualityDetailScreenState extends State<AirQualityDetailScreen> {
   num _currentAqi = 0;
 
   @override
   void initState() {
     super.initState();
     _currentAqi = widget.airQuality?.usEpaIndex ?? 0;
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
-    _aqiAnimation = Tween<double>(begin: 0, end: _currentAqi.toDouble()).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-
-    if (widget.airQuality != null) {
-      _controller.forward();
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant AirQualityDetailScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.airQuality?.usEpaIndex != widget.airQuality?.usEpaIndex) {
-      _currentAqi = widget.airQuality?.usEpaIndex ?? 0;
-      _aqiAnimation = Tween<double>(begin: oldWidget.airQuality?.usEpaIndex?.toDouble() ?? 0, end: _currentAqi.toDouble()).animate(
-        CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-      );
-      _controller.forward(from: 0);
-    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 
@@ -79,29 +53,9 @@ class _AirQualityDetailScreenState extends State<AirQualityDetailScreen> with Si
                     Text('US EPA Air Quality Index (AQI)', style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 16),
                     Center(
-                      child: SizedBox(
-                        width: 150,
-                        height: 150,
-                        child: AnimatedBuilder(
-                          animation: _aqiAnimation,
-                          builder: (context, child) {
-                            return Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                CircularProgressIndicator(
-                                  value: (_aqiAnimation.value / 300).clamp(0.0, 1.0), // Max AQI for progress visualization
-                                  strokeWidth: 10,
-                                  backgroundColor: aqiColor.withOpacity(0.3),
-                                  valueColor: AlwaysStoppedAnimation<Color>(aqiColor),
-                                ),
-                                Text(
-                                  _aqiAnimation.value.round().toString(),
-                                  style: Theme.of(context).textTheme.displayLarge?.copyWith(color: aqiColor),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                      child: Text(
+                        _currentAqi.round().toString(),
+                        style: Theme.of(context).textTheme.displayLarge?.copyWith(color: aqiColor),
                       ),
                     ),
                     const SizedBox(height: 16),
