@@ -105,9 +105,10 @@ class _DewPointDetailScreenState extends State<DewPointDetailScreen> with Single
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
             _buildCurrentDewPoint(context, displayDewPoint, tempUnitSymbol),
             const SizedBox(height: 24),
             _buildDewPointInfo(),
