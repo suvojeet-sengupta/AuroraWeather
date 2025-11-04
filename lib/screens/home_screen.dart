@@ -245,7 +245,7 @@ class HomeScreen extends StatelessWidget {
                   child: WeatherCard(
                     weather: weather,
                     temperatureUnit: temperatureUnit,
-                    showDragHandle: true,
+                    showDragHandle: false,
                     isOffline: weatherProvider.isOffline,
                     lastUpdated: DateTime.fromMillisecondsSinceEpoch(weather.timestamp),
                   ),
