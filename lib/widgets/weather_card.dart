@@ -156,8 +156,8 @@ class WeatherCard extends StatelessWidget {
                                   color: colorScheme.onSurfaceVariant.withOpacity(0.8),
                                   letterSpacing: 0.2,
                                 ),
-                                ),
                           ),
+                        ],
                       ),
                       const SizedBox(height: 4),
                       Container(
