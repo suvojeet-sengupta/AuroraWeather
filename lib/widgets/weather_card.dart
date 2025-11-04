@@ -161,7 +161,7 @@ class WeatherCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: colorScheme.secondaryContainer.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(12),
@@ -171,10 +171,10 @@ class WeatherCard extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.arrow_upward_rounded,
-                              size: 14,
+                              size: 12,
                               color: colorScheme.onSecondaryContainer,
                             ),
-                            const SizedBox(width: 2),
+                            const SizedBox(width: 1),
                             Text(
                               '${maxTemp.round()}$tempUnitSymbol',
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -183,13 +183,13 @@ class WeatherCard extends StatelessWidget {
                                     color: colorScheme.onSecondaryContainer,
                                   ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
                             Icon(
                               Icons.arrow_downward_rounded,
-                              size: 14,
+                              size: 12,
                               color: colorScheme.onSecondaryContainer,
                             ),
-                            const SizedBox(width: 2),
+                            const SizedBox(width: 1),
                             Text(
                               '${minTemp.round()}$tempUnitSymbol',
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
