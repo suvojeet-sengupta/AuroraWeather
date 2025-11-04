@@ -114,6 +114,7 @@ class _DewPointDetailScreenState extends State<DewPointDetailScreen> with Single
             _buildDewPointInfo(),
           ],
         ).animate().fade(duration: 300.ms),
+        ),
       ),
     );
   }
