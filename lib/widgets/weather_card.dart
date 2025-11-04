@@ -103,7 +103,7 @@ class WeatherCard extends StatelessWidget {
                               color: colorScheme.onSurface,
                             ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 2),
                       Text(
                         weather.condition,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -112,7 +112,7 @@ class WeatherCard extends StatelessWidget {
                               letterSpacing: 0.1,
                             ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                       Row(
                         children: [
                           if (isOffline)
@@ -156,10 +156,10 @@ class WeatherCard extends StatelessWidget {
                                   color: colorScheme.onSurfaceVariant.withOpacity(0.8),
                                   letterSpacing: 0.2,
                                 ),
+                                ),
                           ),
-                        ],
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
