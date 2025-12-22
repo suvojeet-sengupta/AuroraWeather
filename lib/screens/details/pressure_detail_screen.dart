@@ -52,7 +52,7 @@ class PressureDetailScreen extends StatelessWidget {
             const SizedBox(height: 24),
             _buildAdvice(context, displayPressure),
           ],
-        ).animate().fade(duration: 150.ms),
+        ).animate().fade(duration: 100.ms),
       ),
     );
   }

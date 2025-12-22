@@ -58,7 +58,7 @@ class HourlyForecastDetailScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ).animate().fade(duration: 150.ms);
+          ).animate().fade(duration: 100.ms);
         },
       ),
     );

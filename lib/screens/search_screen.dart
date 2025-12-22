@@ -139,7 +139,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         : null,
               ),
               onChanged: _onSearchChanged,
-            ).animate().fade(duration: 150.ms).slideX(),
+            ).animate().fade(duration: 100.ms).slideX(),
             const SizedBox(height: 16),
             Expanded(
               child: _isSearching ? _buildSuggestionsList() : _buildRecentSearchesList(),
@@ -171,7 +171,7 @@ class _SearchScreenState extends State<SearchScreen> {
               Navigator.pop(context, suggestion.name);
             },
           ),
-        ).animate().fade(duration: 150.ms).slideY(delay: (30 * index).ms);
+        ).animate().fade(duration: 100.ms).slideY(delay: (20 * index).ms);
       },
     );
   }

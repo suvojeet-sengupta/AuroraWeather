@@ -22,7 +22,7 @@ class _UvIndexDetailScreenState extends State<UvIndexDetailScreen> with SingleTi
     _currentUvIndex = widget.weather.uvIndex;
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 300),
     );
     _uvIndexAnimation = Tween<double>(begin: 0, end: _currentUvIndex).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
@@ -119,7 +119,7 @@ class _UvIndexDetailScreenState extends State<UvIndexDetailScreen> with SingleTi
   Widget _buildCurrentUvIndex(BuildContext context, Color uvColor, Color cardBackgroundColor) {
     final uvIndex = widget.weather.uvIndex;
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
+      duration: const Duration(milliseconds: 100),
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
         color: cardBackgroundColor,

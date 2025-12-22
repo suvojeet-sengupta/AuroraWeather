@@ -23,7 +23,7 @@ class _DewPointDetailScreenState extends State<DewPointDetailScreen> with Single
     _currentDewPoint = widget.dewPoint;
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 300),
     );
     _dewPointAnimation = Tween<double>(begin: 0, end: _currentDewPoint).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
@@ -113,7 +113,7 @@ class _DewPointDetailScreenState extends State<DewPointDetailScreen> with Single
             const SizedBox(height: 24),
             _buildDewPointInfo(),
           ],
-        ).animate().fade(duration: 150.ms),
+        ).animate().fade(duration: 100.ms),
         ),
       ),
     );
@@ -131,7 +131,7 @@ class _DewPointDetailScreenState extends State<DewPointDetailScreen> with Single
         final textColor = (tempCForColor >= 18 || tempCForColor < 10) ? Colors.white : Colors.black; // Adjust text color based on background
 
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
+          duration: const Duration(milliseconds: 100),
           curve: Curves.easeInOut,
           padding: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
