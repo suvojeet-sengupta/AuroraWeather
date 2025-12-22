@@ -54,7 +54,7 @@ class HourlyForecastWidget extends StatelessWidget {
                       temperature: isFahrenheit
                           ? '${forecast.temperatureF.round()}°F'
                           : '${forecast.temperature.round()}°C',
-                    ).animate().fade(duration: 300.ms);
+                    ).animate().fade(duration: 150.ms);
                   },
                 ),
               ),
@@ -62,7 +62,7 @@ class HourlyForecastWidget extends StatelessWidget {
           ),
         ),
       ),
-    ).animate().fade(duration: 300.ms);
+    ).animate().fade(duration: 150.ms);
   }
 
   Widget _buildForecastItem({required String time, required String iconUrl, required String temperature}) {

@@ -23,7 +23,7 @@ class MoonPhaseDetailScreen extends StatelessWidget {
             const SizedBox(height: 24),
             _buildMoonPhaseDescription(context),
           ],
-        ).animate().fade(duration: 300.ms),
+        ).animate().fade(duration: 150.ms),
       ),
     );
   }

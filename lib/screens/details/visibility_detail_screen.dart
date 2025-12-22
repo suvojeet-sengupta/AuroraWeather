@@ -22,7 +22,7 @@ class _VisibilityDetailScreenState extends State<VisibilityDetailScreen> with Si
     _currentVisKm = widget.visKm;
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 400),
     );
     _visibilityAnimation = Tween<double>(begin: 0, end: _currentVisKm).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
@@ -108,7 +108,7 @@ class _VisibilityDetailScreenState extends State<VisibilityDetailScreen> with Si
             const SizedBox(height: 24),
             _buildAdvice(),
           ],
-        ).animate().fade(duration: 300.ms),
+        ).animate().fade(duration: 150.ms),
       ),
     );
   }
@@ -122,7 +122,7 @@ class _VisibilityDetailScreenState extends State<VisibilityDetailScreen> with Si
         final textColor = currentVis > 2 ? Colors.black : Colors.white; // Adjust text color based on background
 
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 150),
           curve: Curves.easeInOut,
           padding: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(

@@ -51,7 +51,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () async {
+    _debounce = Timer(const Duration(milliseconds: 300), () async {
       if (query.isNotEmpty) {
         setState(() {
           _isLoading = true;
@@ -139,7 +139,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         : null,
               ),
               onChanged: _onSearchChanged,
-            ).animate().fade(duration: 300.ms).slideX(),
+            ).animate().fade(duration: 150.ms).slideX(),
             const SizedBox(height: 16),
             Expanded(
               child: _isSearching ? _buildSuggestionsList() : _buildRecentSearchesList(),
@@ -171,7 +171,7 @@ class _SearchScreenState extends State<SearchScreen> {
               Navigator.pop(context, suggestion.name);
             },
           ),
-        ).animate().fade(duration: 300.ms).slideY(delay: (100 * index).ms);
+        ).animate().fade(duration: 150.ms).slideY(delay: (30 * index).ms);
       },
     );
   }

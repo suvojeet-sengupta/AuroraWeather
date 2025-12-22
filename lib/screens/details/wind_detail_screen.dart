@@ -68,7 +68,7 @@ class WindDetailScreen extends StatelessWidget {
               const SizedBox(height: 48),
               _buildWindInfo(context, displayWindSpeed, displayWindSpeedSymbol, beaufort),
             ],
-          ).animate().fade(duration: 300.ms),
+          ).animate().fade(duration: 150.ms),
         ),
       ),
     );

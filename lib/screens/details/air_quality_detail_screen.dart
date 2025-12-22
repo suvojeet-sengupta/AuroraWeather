@@ -39,7 +39,7 @@ class _AirQualityDetailScreenState extends State<AirQualityDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 150),
               curve: Curves.easeInOut,
               decoration: BoxDecoration(
                 color: cardBackgroundColor,

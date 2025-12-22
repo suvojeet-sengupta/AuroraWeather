@@ -252,6 +252,6 @@ class WeatherCard extends StatelessWidget {
           ),
         ),
       ),
-    ).animate().fade(duration: 300.ms).slideY();
+    ).animate().fade(duration: 150.ms).slideY();
   }
 }

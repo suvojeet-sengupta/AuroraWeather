@@ -46,7 +46,7 @@ class DailyForecastWidget extends StatelessWidget {
           ],
         ),
       ),
-    ).animate().fade(duration: 300.ms);
+    ).animate().fade(duration: 150.ms);
   }
 
   Widget _buildForecastItem(BuildContext context, DailyForecast forecast, bool isFahrenheit) {
@@ -114,6 +114,6 @@ class DailyForecastWidget extends StatelessWidget {
           ),
         ),
       ),
-    ).animate().fade(duration: 300.ms);
+    ).animate().fade(duration: 150.ms);
   }
 }
