@@ -200,30 +200,6 @@ class _WeatherDetailScreenState extends State<WeatherDetailScreen> {
             return false;
           },
           child: Scaffold(
-            appBar: AppBar(
-              systemOverlayStyle: SystemUiOverlayStyle(
-                statusBarIconBrightness: Theme.of(context).brightness == Brightness.dark ? Brightness.light : Brightness.dark,
-                statusBarBrightness: Theme.of(context).brightness == Brightness.dark ? Brightness.light : Brightness.dark,
-              ),
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
-                  );
-                },
-              ),
-              title: Text(weatherToDisplay.locationName),
-              elevation: 0,
-              backgroundColor: Colors.transparent,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.share),
-                  onPressed: () => _shareWeatherDetails(weatherToDisplay),
-                ),
-              ],
-            ),
             body: Stack(
               children: [
                 Column(
@@ -348,208 +324,246 @@ class _WeatherDetailScreenState extends State<WeatherDetailScreen> {
     }
 
     return RefreshIndicator(
-      onRefresh: () => widget.weather == null ? weatherProvider.fetchCurrentLocationWeather(force: false) : weatherProvider.fetchWeatherForCity(widget.weather!.locationName, force: false),
+      onRefresh: () async {
+        HapticFeedback.lightImpact();
+        return widget.weather == null ? weatherProvider.fetchCurrentLocationWeather(force: false) : weatherProvider.fetchWeatherForCity(widget.weather!.locationName, force: false);
+      },
       color: Theme.of(context).colorScheme.primary,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      child: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          CurrentWeather(weather: weather, temperatureUnit: temperatureUnit),
-          const SizedBox(height: 16),
-          if (weather.dailyForecast.isNotEmpty)
-            _buildHighLowForecast(context, weather.dailyForecast.first, temperatureUnit, weather.condition),
-          const SizedBox(height: 24),
-          if (weather.dailyForecast.isNotEmpty)
-            TenDayForecast(dailyForecast: weather.dailyForecast, temperatureUnit: temperatureUnit),
-          const SizedBox(height: 24),
-          Consumer<SettingsService>(
-            builder: (context, settingsService, child) {
-              final visibleCards = settingsService.detailCardPreferences
-                  .where((card) => card.isVisible)
-                  .toList();
+      child: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            floating: true,
+            elevation: 0,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarIconBrightness: Theme.of(context).brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+              statusBarBrightness: Theme.of(context).brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+            ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeScreen()),
+                );
+              },
+            ),
+            title: Text(weather.locationName),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.share),
+                onPressed: () => _shareWeatherDetails(weather),
+              ),
+            ],
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  CurrentWeather(weather: weather, temperatureUnit: temperatureUnit),
+                  const SizedBox(height: 16),
+                  if (weather.dailyForecast.isNotEmpty)
+                    _buildHighLowForecast(context, weather.dailyForecast.first, temperatureUnit, weather.condition),
+                  const SizedBox(height: 24),
+                  if (weather.dailyForecast.isNotEmpty)
+                    TenDayForecast(dailyForecast: weather.dailyForecast, temperatureUnit: temperatureUnit),
+                  const SizedBox(height: 24),
+                  Consumer<SettingsService>(
+                    builder: (context, settingsService, child) {
+                      final visibleCards = settingsService.detailCardPreferences
+                          .where((card) => card.isVisible)
+                          .toList();
 
-              if (visibleCards.isEmpty) {
-                return const SizedBox.shrink(); // Or a message indicating no cards are visible
-              }
+                      if (visibleCards.isEmpty) {
+                        return const SizedBox.shrink(); // Or a message indicating no cards are visible
+                      }
 
-              return ReorderableGridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                onReorder: (oldIndex, newIndex) {
-                  settingsService.reorderDetailCards(oldIndex, newIndex);
-                },
-                children: visibleCards.map((card) {
-                  switch (card.cardTypeId) {
-                    case 'precipitation':
-                      return InkWell(
-                        key: ValueKey(card.cardTypeId), // Unique key for reordering
-                        onTap: () {
-                          if (weather.dailyForecast.isNotEmpty) {
-                            Navigator.push(context, MaterialPageRoute(builder: (_) => PrecipitationDetailScreen(precipitation: weather.dailyForecast.first.totalPrecipMm)));
-                          }
+                      return ReorderableGridView.count(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        onReorder: (oldIndex, newIndex) {
+                          HapticFeedback.lightImpact();
+                          settingsService.reorderDetailCards(oldIndex, newIndex);
                         },
-                        child: WeatherDetailCard(
-                          title: 'Precipitation',
-                          value: weather.dailyForecast.isNotEmpty ? '${weather.dailyForecast.first.totalPrecipMm} mm' : 'N/A',
-                          subtitle: 'Total rain for the day',
-                          icon: Icons.water_drop,
-                          color: Colors.blue,
-                        ),
-                      );
-                    case 'wind':
-                      return InkWell(
-                        key: ValueKey(card.cardTypeId), // Unique key for reordering
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => WindDetailScreen(windSpeedKphRaw: weather.wind, windDegree: weather.windDegree, windDir: weather.windDir, windSpeedUnit: windSpeedUnit))),
-                        child: WeatherDetailCard(
-                          title: 'Wind',
-                          value: '${windSpeedDisplay.round()} $windSpeedSymbol',
-                          subtitle: weather.windDir.isNotEmpty ? 'From ${weather.windDir}' : 'N/A',
-                          icon: Icons.air,
-                          color: Colors.green,
-                        ),
-                      );
-                    case 'pressure':
-                      return InkWell(
-                        key: ValueKey(card.cardTypeId), // Unique key for reordering
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PressureDetailScreen(pressure: weather.pressure?.toDouble() ?? 0.0, pressureUnit: pressureUnit))),
-                        child: WeatherDetailCard(
-                          title: 'Pressure',
-                          value: '${pressureDisplay.round()} $pressureSymbol',
-                          subtitle: pressureSymbol,
-                          icon: Icons.compress,
-                          color: Colors.red,
-                        ),
-                      );
-                    case 'air_quality':
-                      return InkWell(
-                        key: ValueKey(card.cardTypeId), // Unique key for reordering
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AirQualityDetailScreen(airQuality: weather.airQuality))),
-                        child: WeatherDetailCard(
-                          title: 'Air Quality',
-                          value: weather.airQuality?.usEpaIndex.round().toString() ?? 'N/A',
-                          subtitle: _getAqiSubtitle(weather.airQuality?.usEpaIndex),
-                          icon: Icons.air_outlined,
-                          color: Colors.yellow,
-                        ),
-                      );
-                    case 'humidity':
-                      return InkWell(
-                        key: ValueKey(card.cardTypeId), // Unique key for reordering
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => HumidityDetailScreen(humidity: weather.humidity))),
-                        child: WeatherDetailCard(
-                          title: 'Humidity',
-                          value: '${weather.humidity}%',
-                          subtitle: 'Current humidity',
-                          icon: Icons.water,
-                          color: Colors.teal,
-                        ),
-                      );
-                    case 'uv_index':
-                      return InkWell(
-                        key: ValueKey(card.cardTypeId), // Unique key for reordering
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => UvIndexDetailScreen(weather: weather))),
-                        child: WeatherDetailCard(
-                          title: 'UV Index',
-                          value: weather.uvIndex.round().toString(),
-                          subtitle: _getUvIndexDescription(weather.uvIndex),
-                          icon: Icons.wb_sunny_outlined,
-                          color: Colors.orange,
-                        ),
-                      );
-                    case 'sunrise_sunset':
-                      return InkWell(
-                        key: ValueKey(card.cardTypeId), // Unique key for reordering
-                        onTap: () {
-                          if (weather.dailyForecast.isNotEmpty) {
-                            Navigator.push(context, MaterialPageRoute(builder: (_) => SunriseSunsetDetailScreen(date: weather.dailyForecast.first.date, sunrise: weather.dailyForecast.first.sunrise, sunset: weather.dailyForecast.first.sunset)));
+                        children: visibleCards.map((card) {
+                          switch (card.cardTypeId) {
+                            case 'precipitation':
+                              return InkWell(
+                                key: ValueKey(card.cardTypeId), // Unique key for reordering
+                                onTap: () {
+                                  if (weather.dailyForecast.isNotEmpty) {
+                                    Navigator.push(context, MaterialPageRoute(builder: (_) => PrecipitationDetailScreen(precipitation: weather.dailyForecast.first.totalPrecipMm)));
+                                  }
+                                },
+                                child: WeatherDetailCard(
+                                  title: 'Precipitation',
+                                  value: weather.dailyForecast.isNotEmpty ? '${weather.dailyForecast.first.totalPrecipMm} mm' : 'N/A',
+                                  subtitle: 'Total rain for the day',
+                                  icon: Icons.water_drop,
+                                  color: Colors.blue,
+                                ),
+                              );
+                            case 'wind':
+                              return InkWell(
+                                key: ValueKey(card.cardTypeId), // Unique key for reordering
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => WindDetailScreen(windSpeedKphRaw: weather.wind, windDegree: weather.windDegree, windDir: weather.windDir, windSpeedUnit: windSpeedUnit))),
+                                child: WeatherDetailCard(
+                                  title: 'Wind',
+                                  value: '${windSpeedDisplay.round()} $windSpeedSymbol',
+                                  subtitle: weather.windDir.isNotEmpty ? 'From ${weather.windDir}' : 'N/A',
+                                  icon: Icons.air,
+                                  color: Colors.green,
+                                ),
+                              );
+                            case 'pressure':
+                              return InkWell(
+                                key: ValueKey(card.cardTypeId), // Unique key for reordering
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PressureDetailScreen(pressure: weather.pressure?.toDouble() ?? 0.0, pressureUnit: pressureUnit))),
+                                child: WeatherDetailCard(
+                                  title: 'Pressure',
+                                  value: '${pressureDisplay.round()} $pressureSymbol',
+                                  subtitle: pressureSymbol,
+                                  icon: Icons.compress,
+                                  color: Colors.red,
+                                ),
+                              );
+                            case 'air_quality':
+                              return InkWell(
+                                key: ValueKey(card.cardTypeId), // Unique key for reordering
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AirQualityDetailScreen(airQuality: weather.airQuality))),
+                                child: WeatherDetailCard(
+                                  title: 'Air Quality',
+                                  value: weather.airQuality?.usEpaIndex.round().toString() ?? 'N/A',
+                                  subtitle: _getAqiSubtitle(weather.airQuality?.usEpaIndex),
+                                  icon: Icons.air_outlined,
+                                  color: Colors.yellow,
+                                ),
+                              );
+                            case 'humidity':
+                              return InkWell(
+                                key: ValueKey(card.cardTypeId), // Unique key for reordering
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => HumidityDetailScreen(humidity: weather.humidity))),
+                                child: WeatherDetailCard(
+                                  title: 'Humidity',
+                                  value: '${weather.humidity}%',
+                                  subtitle: 'Current humidity',
+                                  icon: Icons.water,
+                                  color: Colors.teal,
+                                ),
+                              );
+                            case 'uv_index':
+                              return InkWell(
+                                key: ValueKey(card.cardTypeId), // Unique key for reordering
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => UvIndexDetailScreen(weather: weather))),
+                                child: WeatherDetailCard(
+                                  title: 'UV Index',
+                                  value: weather.uvIndex.round().toString(),
+                                  subtitle: _getUvIndexDescription(weather.uvIndex),
+                                  icon: Icons.wb_sunny_outlined,
+                                  color: Colors.orange,
+                                ),
+                              );
+                            case 'sunrise_sunset':
+                              return InkWell(
+                                key: ValueKey(card.cardTypeId), // Unique key for reordering
+                                onTap: () {
+                                  if (weather.dailyForecast.isNotEmpty) {
+                                    Navigator.push(context, MaterialPageRoute(builder: (_) => SunriseSunsetDetailScreen(date: weather.dailyForecast.first.date, sunrise: weather.dailyForecast.first.sunrise, sunset: weather.dailyForecast.first.sunset)));
+                                  }
+                                },
+                                child: WeatherDetailCard(
+                                  title: 'Sunrise & Sunset',
+                                  value: (weather.dailyForecast.isNotEmpty &&
+                                    weather.dailyForecast.first.sunrise.isNotEmpty &&
+                                    weather.dailyForecast.first.sunset.isNotEmpty
+                                  ) ? '${_formatTime(weather.dailyForecast.first.date, weather.dailyForecast.first.sunrise)} / ${_formatTime(weather.dailyForecast.first.date, weather.dailyForecast.first.sunset)}' : 'N/A',
+                                  subtitle: 'Daylight: ${_calculateDaylight(weather.dailyForecast.first.date, weather.dailyForecast.first.sunrise, weather.dailyForecast.first.sunset)}',
+                                  icon: Icons.brightness_6,
+                                  color: Colors.amber,
+                                ),
+                              );
+                            case 'visibility':
+                              return InkWell(
+                                key: ValueKey(card.cardTypeId), // Unique key for reordering
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => VisibilityDetailScreen(visKm: weather.vis_km, visMiles: weather.vis_miles))),
+                                child: WeatherDetailCard(
+                                  title: 'Visibility',
+                                  value: '${weather.vis_km} km',
+                                  subtitle: 'Clear conditions',
+                                  icon: Icons.visibility,
+                                  color: Colors.purple,
+                                ),
+                              );
+                            case 'dew_point':
+                              return InkWell(
+                                key: ValueKey(card.cardTypeId), // Unique key for reordering
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DewPointDetailScreen(dewPoint: weather.dewpoint_c, temperatureUnit: temperatureUnit))),
+                                child: WeatherDetailCard(
+                                  title: 'Dew Point',
+                                  value: '${dewPointDisplay.round()}$tempUnitSymbol',
+                                  subtitle: 'Comfort level',
+                                  icon: Icons.thermostat_auto,
+                                  color: Colors.lightBlue,
+                                ),
+                              );
+                            case 'moon_phase':
+                              return InkWell(
+                                key: ValueKey(card.cardTypeId), // Unique key for reordering
+                                onTap: () {
+                                  if (weather.dailyForecast.isNotEmpty) {
+                                    Navigator.push(context, MaterialPageRoute(builder: (_) => MoonPhaseDetailScreen(moonPhase: weather.dailyForecast.first.moonPhase)));
+                                  }
+                                },
+                                child: WeatherDetailCard(
+                                  title: 'Moon Phase',
+                                  value: weather.dailyForecast.isNotEmpty ? weather.dailyForecast.first.moonPhase : 'N/A',
+                                  subtitle: 'Current phase',
+                                  icon: Icons.brightness_2,
+                                  color: Colors.indigo,
+                                ),
+                              );
+                            case 'hourly_precipitation_chance':
+                              return InkWell(
+                                key: ValueKey(card.cardTypeId), // Unique key for reordering
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => HourlyPrecipitationDetailScreen(hourlyForecast: weather.hourlyForecast))),
+                                child: WeatherDetailCard(
+                                  title: 'Hourly Rain Chance',
+                                  value: '${weather.hourlyForecast.isNotEmpty ? (weather.hourlyForecast.first.chanceOfRain?.toString() ?? 'N/A') : 'N/A'}%',
+                                  subtitle: 'Next hour',
+                                  icon: Icons.umbrella,
+                                  color: Colors.blueGrey,
+                                ),
+                              );
+                            case 'wind_gusts':
+                              return InkWell(
+                                key: ValueKey(card.cardTypeId), // Unique key for reordering
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => WindGustDetailScreen(hourlyForecast: weather.hourlyForecast, windSpeedUnit: windSpeedUnit))),
+                                child: WeatherDetailCard(
+                                  title: 'Wind Gusts',
+                                  value: weather.hourlyForecast.isNotEmpty && weather.hourlyForecast.first.windGustKph != null
+                                      ? '${(windSpeedUnit == WindSpeedUnit.mph ? _kphToMph(weather.hourlyForecast.first.windGustKph!).round() : (windSpeedUnit == WindSpeedUnit.ms ? _kphToMs(weather.hourlyForecast.first.windGustKph!).round() : weather.hourlyForecast.first.windGustKph!.round()))} $windSpeedSymbol'
+                                      : 'N/A',
+                                  subtitle: 'Next hour',
+                                  icon: Icons.wind_power,
+                                  color: Colors.brown,
+                                ),
+                              );
+                            default:
+                              return const SizedBox.shrink(); // Should not happen if defaultDetailCards is kept in sync
                           }
-                        },
-                        child: WeatherDetailCard(
-                          title: 'Sunrise & Sunset',
-                          value: (weather.dailyForecast.isNotEmpty &&
-                            weather.dailyForecast.first.sunrise.isNotEmpty &&
-                            weather.dailyForecast.first.sunset.isNotEmpty
-                          ) ? '${_formatTime(weather.dailyForecast.first.date, weather.dailyForecast.first.sunrise)} / ${_formatTime(weather.dailyForecast.first.date, weather.dailyForecast.first.sunset)}' : 'N/A',
-                          subtitle: 'Daylight: ${_calculateDaylight(weather.dailyForecast.first.date, weather.dailyForecast.first.sunrise, weather.dailyForecast.first.sunset)}',
-                          icon: Icons.brightness_6,
-                          color: Colors.amber,
-                        ),
+                        }).toList(),
                       );
-                    case 'visibility':
-                      return InkWell(
-                        key: ValueKey(card.cardTypeId), // Unique key for reordering
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => VisibilityDetailScreen(visKm: weather.vis_km, visMiles: weather.vis_miles))),
-                        child: WeatherDetailCard(
-                          title: 'Visibility',
-                          value: '${weather.vis_km} km',
-                          subtitle: 'Clear conditions',
-                          icon: Icons.visibility,
-                          color: Colors.purple,
-                        ),
-                      );
-                    case 'dew_point':
-                      return InkWell(
-                        key: ValueKey(card.cardTypeId), // Unique key for reordering
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DewPointDetailScreen(dewPoint: weather.dewpoint_c, temperatureUnit: temperatureUnit))),
-                        child: WeatherDetailCard(
-                          title: 'Dew Point',
-                          value: '${dewPointDisplay.round()}$tempUnitSymbol',
-                          subtitle: 'Comfort level',
-                          icon: Icons.thermostat_auto,
-                          color: Colors.lightBlue,
-                        ),
-                      );
-                    case 'moon_phase':
-                      return InkWell(
-                        key: ValueKey(card.cardTypeId), // Unique key for reordering
-                        onTap: () {
-                          if (weather.dailyForecast.isNotEmpty) {
-                            Navigator.push(context, MaterialPageRoute(builder: (_) => MoonPhaseDetailScreen(moonPhase: weather.dailyForecast.first.moonPhase)));
-                          }
-                        },
-                        child: WeatherDetailCard(
-                          title: 'Moon Phase',
-                          value: weather.dailyForecast.isNotEmpty ? weather.dailyForecast.first.moonPhase : 'N/A',
-                          subtitle: 'Current phase',
-                          icon: Icons.brightness_2,
-                          color: Colors.indigo,
-                        ),
-                      );
-                    case 'hourly_precipitation_chance':
-                      return InkWell(
-                        key: ValueKey(card.cardTypeId), // Unique key for reordering
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => HourlyPrecipitationDetailScreen(hourlyForecast: weather.hourlyForecast))),
-                        child: WeatherDetailCard(
-                          title: 'Hourly Rain Chance',
-                          value: '${weather.hourlyForecast.isNotEmpty ? (weather.hourlyForecast.first.chanceOfRain?.toString() ?? 'N/A') : 'N/A'}%',
-                          subtitle: 'Next hour',
-                          icon: Icons.umbrella,
-                          color: Colors.blueGrey,
-                        ),
-                      );
-                    case 'wind_gusts':
-                      return InkWell(
-                        key: ValueKey(card.cardTypeId), // Unique key for reordering
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => WindGustDetailScreen(hourlyForecast: weather.hourlyForecast, windSpeedUnit: windSpeedUnit))),
-                        child: WeatherDetailCard(
-                          title: 'Wind Gusts',
-                          value: weather.hourlyForecast.isNotEmpty && weather.hourlyForecast.first.windGustKph != null
-                              ? '${(windSpeedUnit == WindSpeedUnit.mph ? _kphToMph(weather.hourlyForecast.first.windGustKph!).round() : (windSpeedUnit == WindSpeedUnit.ms ? _kphToMs(weather.hourlyForecast.first.windGustKph!).round() : weather.hourlyForecast.first.windGustKph!.round()))} $windSpeedSymbol'
-                              : 'N/A',
-                          subtitle: 'Next hour',
-                          icon: Icons.wind_power,
-                          color: Colors.brown,
-                        ),
-                      );
-                    default:
-                      return const SizedBox.shrink(); // Should not happen if defaultDetailCards is kept in sync
-                  }
-                }).toList(),
-              );
-            },
+                    },
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

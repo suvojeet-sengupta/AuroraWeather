@@ -1,5 +1,6 @@
 import 'package:AuroraWeather/constants/app_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -160,7 +161,10 @@ class HomeScreen extends StatelessWidget {
     }
 
     return RefreshIndicator(
-      onRefresh: () => weatherProvider.refreshAll(),
+      onRefresh: () async {
+        HapticFeedback.lightImpact();
+        await weatherProvider.refreshAll();
+      },
       color: Theme.of(context).colorScheme.primary,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       child: ListView(
@@ -198,6 +202,7 @@ class HomeScreen extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: savedCities.length,
               onReorder: (oldIndex, newIndex) {
+                HapticFeedback.lightImpact();
                 weatherProvider.reorderSavedCities(oldIndex, newIndex);
               },
               itemBuilder: (context, index) {

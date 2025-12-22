@@ -204,41 +204,47 @@ class WeatherCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: colorScheme.primaryContainer.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Row(
-                    children: [
-                      (weather.iconUrl.startsWith('https://cdn.weatherapi.com')
-                          ? Image.network(
-                              weather.iconUrl,
-                              height: 48,
-                              width: 48,
-                              errorBuilder: (context, error, stackTrace) => Icon(
+                Hero(
+                  tag: 'weather_card_${weather.locationName}',
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Row(
+                      children: [
+                        (weather.iconUrl.startsWith('https://cdn.weatherapi.com')
+                            ? Image.network(
+                                weather.iconUrl,
+                                height: 48,
+                                width: 48,
+                                errorBuilder: (context, error, stackTrace) => Icon(
+                                  Icons.wb_sunny_rounded,
+                                  size: 48,
+                                  color: colorScheme.primary,
+                                ),
+                              )
+                            : Icon(
                                 Icons.wb_sunny_rounded,
                                 size: 48,
                                 color: colorScheme.primary,
-                              ),
-                            )
-                          : Icon(
-                              Icons.wb_sunny_rounded,
-                              size: 48,
-                              color: colorScheme.primary,
-                            )),
-                      const SizedBox(width: 12),
-                      Text(
-                        '${currentTemp.round()}$tempUnitSymbol',
-                        style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                              fontSize: 52,
-                              fontWeight: FontWeight.w300,
-                              letterSpacing: -2,
-                              color: colorScheme.primary,
-                            ),
-                      ),
-                    ],
+                              )),
+                        const SizedBox(width: 12),
+                        Material(
+                          color: Colors.transparent,
+                          child: Text(
+                            '${currentTemp.round()}$tempUnitSymbol',
+                            style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                                  fontSize: 52,
+                                  fontWeight: FontWeight.w300,
+                                  letterSpacing: -2,
+                                  color: colorScheme.primary,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

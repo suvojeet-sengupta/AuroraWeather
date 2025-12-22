@@ -67,35 +67,50 @@ class CurrentWeather extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${currentTemp.round()}$tempUnitSymbol',
-                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                            fontSize: 80,
-                            fontWeight: FontWeight.w200,
+                Hero(
+                  tag: 'weather_card_${weather.locationName}',
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Material(
+                            color: Colors.transparent,
+                            child: Text(
+                              '${currentTemp.round()}$tempUnitSymbol',
+                              style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                                    fontSize: 80,
+                                    fontWeight: FontWeight.w200,
+                                  ),
+                            ),
                           ),
-                    ),
-                    Text(
-                      weather.condition,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
+                          Material(
+                            color: Colors.transparent,
+                            child: Text(
+                              weather.condition,
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
                           ),
-                    ),
-                  ],
+                        ],
+                      ),
+                      const SizedBox(width: 16),
+                      (weather.iconUrl.startsWith('https://cdn.weatherapi.com')
+                          ? Image.network(
+                              weather.iconUrl,
+                              height: 100, // Slightly larger icon
+                              width: 100,
+                            )
+                          : const SizedBox(
+                              height: 100,
+                              width: 100,
+                            )),
+                    ],
+                  ),
                 ),
-                (weather.iconUrl.startsWith('https://cdn.weatherapi.com')
-                    ? Image.network(
-                        weather.iconUrl,
-                        height: 100, // Slightly larger icon
-                        width: 100,
-                      )
-                    : const SizedBox(
-                        height: 100,
-                        width: 100,
-                      )),
               ],
             ),
             const SizedBox(height: 16),
