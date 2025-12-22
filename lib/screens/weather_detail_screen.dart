@@ -202,10 +202,14 @@ class _WeatherDetailScreenState extends State<WeatherDetailScreen> {
           child: Scaffold(
             body: Stack(
               children: [
-                Column(
-                  children: [
-                    if (isLoading)
-                      Container(
+                _buildWeatherContent(context, weatherToDisplay, weatherProvider, temperatureUnit, windSpeedUnit, pressureUnit, tempUnitSymbol, windSpeedDisplay, windSpeedSymbol, pressureDisplay, pressureSymbol, dewPointDisplay),
+                if (isLoading)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: SafeArea(
+                      child: Container(
                         padding: const EdgeInsets.all(8.0),
                         color: Colors.black.withOpacity(0.5),
                         child: const Row(
@@ -217,15 +221,12 @@ class _WeatherDetailScreenState extends State<WeatherDetailScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                             ),
                             SizedBox(width: 16),
-                            Text('Fetching weather...'),
+                            Text('Fetching weather...', style: TextStyle(color: Colors.white)),
                           ],
                         ),
                       ),
-                    Expanded(
-                      child: _buildWeatherContent(context, weatherToDisplay, weatherProvider, temperatureUnit, windSpeedUnit, pressureUnit, tempUnitSymbol, windSpeedDisplay, windSpeedSymbol, pressureDisplay, pressureSymbol, dewPointDisplay),
                     ),
-                  ],
-                ),
+                  ),
                 // Hidden widget for screenshot
                 Positioned(
                   left: -10000, // Position off-screen
