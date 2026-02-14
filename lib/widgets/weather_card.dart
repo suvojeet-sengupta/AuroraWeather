@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../models/weather_model.dart';
 import '../screens/weather_detail_screen.dart';
 import '../services/settings_service.dart';
+import 'glass_card.dart';
 
 class WeatherCard extends StatelessWidget {
   final Weather weather;
@@ -44,52 +45,26 @@ class WeatherCard extends StatelessWidget {
         ? _celsiusToFahrenheit(weather.dailyForecast.first.minTemp)
         : weather.dailyForecast.first.minTemp;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(28),
-        side: BorderSide(
-          color: colorScheme.outlineVariant.withOpacity(0.5),
-          width: 1,
-        ),
-      ),
-      clipBehavior: Clip.antiAlias,
-      color: colorScheme.surfaceContainerLow,
-      child: InkWell(
-        onTap: onTap ??
-            () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => WeatherDetailScreen(weather: weather),
-                ),
-              );
-            },
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                colorScheme.surfaceContainerLow,
-                colorScheme.surfaceContainer.withOpacity(0.3),
-              ],
-            ),
-          ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: GlassCard(
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onTap ??
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WeatherDetailScreen(weather: weather),
+                  ),
+                );
+              },
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(20.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 if (showDragHandle)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 12.0),
-                    child: Icon(
-                      Icons.drag_handle_rounded,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
+                  Icon(Icons.drag_handle, color: colorScheme.onSurface.withOpacity(0.3)),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,161 +72,99 @@ class WeatherCard extends StatelessWidget {
                       Text(
                         weather.locationName,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: -0.5,
-                              color: colorScheme.onSurface,
-                            ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        weather.condition,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontSize: 16,
-                              color: colorScheme.onSurfaceVariant,
-                              letterSpacing: 0.1,
-                            ),
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          if (isOffline)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: colorScheme.tertiaryContainer,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.cloud_off_rounded,
-                                    size: 12,
-                                    color: colorScheme.onTertiaryContainer,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Offline',
-                                    style: TextStyle(
-                                      color: colorScheme.onTertiaryContainer,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          if (isOffline) const SizedBox(width: 8),
-                          Icon(
-                            Icons.access_time_rounded,
-                            size: 12,
-                            color: colorScheme.onSurfaceVariant.withOpacity(0.6),
-                          ),
-                          const SizedBox(width: 4),
                           Text(
-                            DateFormat('MMM d, h:mm a').format(lastUpdated),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontSize: 12,
-                                  color: colorScheme.onSurfaceVariant.withOpacity(0.8),
-                                  letterSpacing: 0.2,
-                                ),
+                            weather.condition,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurface.withOpacity(0.7),
+                            ),
                           ),
+                          if (isOffline) ...[
+                            const SizedBox(width: 8),
+                            Icon(Icons.cloud_off, size: 14, color: colorScheme.error),
+                          ],
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: colorScheme.secondaryContainer.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.arrow_upward_rounded,
-                              size: 12,
-                              color: colorScheme.onSecondaryContainer,
-                            ),
-                            const SizedBox(width: 1),
-                            Text(
-                              '${maxTemp.round()}$tempUnitSymbol',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: colorScheme.onSecondaryContainer,
-                                  ),
-                            ),
-                            const SizedBox(width: 6),
-                            Icon(
-                              Icons.arrow_downward_rounded,
-                              size: 12,
-                              color: colorScheme.onSecondaryContainer,
-                            ),
-                            const SizedBox(width: 1),
-                            Text(
-                              '${minTemp.round()}$tempUnitSymbol',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: colorScheme.onSecondaryContainer,
-                                  ),
-                            ),
-                          ],
-                        ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          _buildTempBadge(context, Icons.arrow_upward, '${maxTemp.round()}°', Colors.orange),
+                          const SizedBox(width: 8),
+                          _buildTempBadge(context, Icons.arrow_downward, '${minTemp.round()}°', Colors.blue),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                Hero(
-                  tag: 'weather_card_${weather.locationName}',
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Row(
                       children: [
-                        (weather.iconUrl.startsWith('https://cdn.weatherapi.com')
-                            ? Image.network(
-                                weather.iconUrl,
-                                height: 48,
-                                width: 48,
-                                errorBuilder: (context, error, stackTrace) => Icon(
-                                  Icons.wb_sunny_rounded,
-                                  size: 48,
-                                  color: colorScheme.primary,
-                                ),
-                              )
-                            : Icon(
-                                Icons.wb_sunny_rounded,
-                                size: 48,
-                                color: colorScheme.primary,
-                              )),
-                        const SizedBox(width: 12),
-                        Material(
-                          color: Colors.transparent,
-                          child: Text(
-                            '${currentTemp.round()}$tempUnitSymbol',
-                            style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                                  fontSize: 52,
-                                  fontWeight: FontWeight.w300,
-                                  letterSpacing: -2,
-                                  color: colorScheme.primary,
-                                ),
+                        if (weather.iconUrl.isNotEmpty)
+                          Image.network(
+                            weather.iconUrl,
+                            height: 40,
+                            width: 40,
+                            errorBuilder: (context, error, stackTrace) => const Icon(Icons.cloud),
+                          ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${currentTemp.round()}$tempUnitSymbol',
+                          style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                            fontWeight: FontWeight.w300,
+                            color: colorScheme.primary,
                           ),
                         ),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: 4),
+                    Text(
+                      DateFormat('h:mm a').format(lastUpdated),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurface.withOpacity(0.4),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
       ),
-    ).animate().fade(duration: 100.ms).slideY();
+    ).animate().fadeIn(duration: 400.ms).slideX(begin: 0.1, end: 0);
+  }
+
+  Widget _buildTempBadge(BuildContext context, IconData icon, String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: 2),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
   }
 }

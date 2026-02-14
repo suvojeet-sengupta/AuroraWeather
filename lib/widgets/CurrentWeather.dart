@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/weather_model.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../services/settings_service.dart'; // Import SettingsService for TemperatureUnit
+import '../services/settings_service.dart';
+import 'glass_card.dart';
 
 class CurrentWeather extends StatelessWidget {
   final Weather weather;
@@ -14,25 +15,12 @@ class CurrentWeather extends StatelessWidget {
     return (celsius * 9 / 5) + 32;
   }
 
-  String _getFeelsLikeExplanation(double temp, double feelsLike, TemperatureUnit unit) {
-    if ((feelsLike - temp).abs() < 2) {
-      return 'Similar to the actual temperature.';
-    }
-    if (feelsLike < temp) {
-      return 'Feels colder due to the wind.';
-    }
-    if (feelsLike > temp) {
-      return 'Feels warmer due to humidity.';
-    }
-    return '';
-  }
-
   String _formatLastUpdated(String lastUpdated) {
     try {
       final dateTime = DateTime.parse(lastUpdated);
-      return DateFormat.jm().format(dateTime); // Format to 12-hour format with AM/PM
+      return DateFormat.jm().format(dateTime);
     } catch (e) {
-      return lastUpdated; // Return original string if parsing fails
+      return lastUpdated;
     }
   }
 
@@ -46,105 +34,102 @@ class CurrentWeather extends StatelessWidget {
         : weather.feelsLike;
     final tempUnitSymbol = temperatureUnit == TemperatureUnit.fahrenheit ? '°F' : '°C';
 
-    return Card(
-      color: Theme.of(context).cardTheme.color,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+    return GlassCard(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            weather.locationName,
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _formatLastUpdated(weather.last_updated),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (weather.iconUrl.isNotEmpty)
+                Image.network(
+                  weather.iconUrl,
+                  height: 120,
+                  width: 120,
+                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.cloud, size: 80),
+                ).animate().scale(duration: 600.ms, curve: Curves.backOut),
+              const SizedBox(width: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${currentTemp.round()}$tempUnitSymbol',
+                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          fontSize: 84,
+                          fontWeight: FontWeight.w200,
+                          height: 1,
+                        ),
+                  ),
+                  Text(
+                    weather.condition,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w400,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildInfoItem(context, Icons.thermostat, 'Feels like', '${feelsLikeTemp.round()}$tempUnitSymbol'),
+              _buildVerticalDivider(context),
+              _buildInfoItem(context, Icons.water_drop, 'Humidity', '${weather.humidity}%'),
+              _buildVerticalDivider(context),
+              _buildInfoItem(context, Icons.air, 'Wind', '${weather.wind.round()} km/h'),
+            ],
+          ),
+        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              weather.locationName,
-              style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Hero(
-                  tag: 'weather_card_${weather.locationName}',
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Material(
-                            color: Colors.transparent,
-                            child: Text(
-                              '${currentTemp.round()}$tempUnitSymbol',
-                              style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                                    fontSize: 80,
-                                    fontWeight: FontWeight.w200,
-                                  ),
-                            ),
-                          ),
-                          Material(
-                            color: Colors.transparent,
-                            child: Text(
-                              weather.condition,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(width: 16),
-                      (weather.iconUrl.startsWith('https://cdn.weatherapi.com')
-                          ? Image.network(
-                              weather.iconUrl,
-                              height: 100, // Slightly larger icon
-                              width: 100,
-                            )
-                          : const SizedBox(
-                              height: 100,
-                              width: 100,
-                            )),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Divider(color: Theme.of(context).dividerColor),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Icon(Icons.thermostat, color: Theme.of(context).iconTheme.color, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  'Feels like ${feelsLikeTemp.round()}$tempUnitSymbol',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _getFeelsLikeExplanation(currentTemp, feelsLikeTemp, temperatureUnit),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.update, color: Theme.of(context).iconTheme.color, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  'Last updated: ${_formatLastUpdated(weather.last_updated)}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
-                ),
-              ],
-            ),
-          ],
+    ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.1, end: 0);
+  }
+
+  Widget _buildVerticalDivider(BuildContext context) {
+    return Container(
+      height: 30,
+      width: 1,
+      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+    );
+  }
+
+  Widget _buildInfoItem(BuildContext context, IconData icon, String label, String value) {
+    return Column(
+      children: [
+        Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary.withOpacity(0.8)),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
-      ),
-    ).animate().fade(duration: 100.ms);
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+          ),
+        ),
+      ],
+    );
+  }
+}
   }
 }

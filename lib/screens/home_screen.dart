@@ -27,6 +27,7 @@ class HomeScreen extends StatelessWidget {
     final pressureUnit = settingsService.pressureUnit;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text('Aurora Weather'),
         automaticallyImplyLeading: false,
@@ -42,8 +43,18 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Consumer<WeatherProvider>(
-        builder: (context, weatherProvider, child) {
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: Theme.of(context).brightness == Brightness.dark
+                ? [const Color(0xFF0D1117), const Color(0xFF010409)]
+                : [Colors.blue.shade100, Colors.white],
+          ),
+        ),
+        child: Consumer<WeatherProvider>(
+          builder: (context, weatherProvider, child) {
           final error = weatherProvider.error;
           if (error != null) {
             // Show a SnackBar if there's an error but we already have some data to display.
@@ -65,7 +76,8 @@ class HomeScreen extends StatelessWidget {
             }
           }
           return _buildWeatherList(context, temperatureUnit, windSpeedUnit, pressureUnit, weatherProvider);
-        },
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
